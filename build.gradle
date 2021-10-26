@@ -1,19 +1,13 @@
 plugins {
-	id 'org.springframework.boot' version '2.3.0.RELEASE'
-	id 'io.spring.dependency-management' version '1.0.9.RELEASE'
+	id 'org.springframework.boot' version '2.3.3.RELEASE'
+	id 'io.spring.dependency-management' version '1.0.10.RELEASE'
 	id 'java'
 	id 'war'
 }
 
 group = 'ru.ravel'
 version = '0.0.1-SNAPSHOT'
-sourceCompatibility = '1.8' //11
-
-//configurations {
-//	compileOnly {
-//		extendsFrom annotationProcessor
-//	}
-//}
+sourceCompatibility = '1.8'
 
 repositories {
 	mavenCentral()
@@ -24,20 +18,18 @@ war {
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
-	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
-	implementation 'org.springframework:spring-jdbc'
-	implementation 'org.springframework.boot:spring-boot-starter-data-rest'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
-	compileOnly 'org.projectlombok:lombok'
-	runtimeOnly 'mysql:mysql-connector-java'
-	annotationProcessor 'org.projectlombok:lombok'
 	providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	implementation 'org.telegram:telegrambots:5.2.0'
-	implementation group: 'org.apache.tomcat.embed', name: 'tomcat-embed-jasper', version: '10.1.0-M1'
-	implementation group: 'javax.xml.bind', name: 'jaxb-api', version: '2.3.1'
-	implementation group: 'javax.servlet', name: 'jstl', version: '1.2'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
+	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+	runtimeOnly 'mysql:mysql-connector-java'
+	compile group: 'org.apache.tomcat.embed', name: 'tomcat-embed-jasper'
+	compile group: 'javax.xml.bind', name: 'jaxb-api'
+	compile group: 'javax.servlet', name: 'jstl'
+
+	implementation group: 'org.telegram', name: 'telegrambots', version: '5.3.0'
+	compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.22'
 }
 
 test {
