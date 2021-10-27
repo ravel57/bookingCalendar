@@ -4,6 +4,12 @@
     <title>Бронь</title>
     <meta charset=utf-8>
     <link rel="stylesheet" href="/css/app.css"/>
+<%--    <style type="text/css">--%>
+<%--        body {--%>
+<%--            margin: 0;--%>
+<%--            padding: 0;--%>
+<%--        }--%>
+<%--    </style>--%>
 </head>
 <body>
 <div id=app></div>

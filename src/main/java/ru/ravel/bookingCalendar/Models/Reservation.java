@@ -15,7 +15,7 @@ public class Reservation {
     private long userId;
     private long cabinetId;
     private Date startTime;
-    private Date endTime;
+    private long duration;
     private String title;
 
 }
