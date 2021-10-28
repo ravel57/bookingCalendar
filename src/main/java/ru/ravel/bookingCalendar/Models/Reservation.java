@@ -1,21 +1,22 @@
 package ru.ravel.bookingCalendar.Models;
 
-import lombok.*;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Date;
 
 @Getter
 @Setter
 @Builder
-@AllArgsConstructor
-@NoArgsConstructor
+//@AllArgsConstructor
+//@NoArgsConstructor
 public class Reservation {
-
     private long id;
     private long userId;
     private long cabinetId;
     private Date startTime;
     private long duration;
     private String title;
-
+    private String color;
 }

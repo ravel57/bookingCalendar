@@ -11,8 +11,8 @@ import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 @Controller
 public class TelegramController extends TelegramLongPollingBot {
 
-    final String botName = "";
-    final String token ="1859807383:AAGw7TLN1507D_VymzqHRdwxqzmtufRA94E";
+    final String botName = "bot";
+    final String token ="1859807383:AAG7qGnArHk8IssCWKjG2YDXqfubYqTj7yk";
 
     public TelegramController() {
         try {

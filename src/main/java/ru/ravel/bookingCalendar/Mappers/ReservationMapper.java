@@ -15,6 +15,7 @@ public class ReservationMapper implements RowMapper<Reservation> {
                 .startTime(rs.getTimestamp("start_time"))
                 .duration(rs.getLong("duration"))
                 .title(rs.getString("title"))
+                .color(rs.getString("color"))
                 .build();
     }
 }

@@ -29,7 +29,10 @@ dependencies {
 	compile group: 'javax.servlet', name: 'jstl'
 
 	implementation group: 'org.telegram', name: 'telegrambots', version: '5.3.0'
-	compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.22'
+	compileOnly 'org.projectlombok:lombok:1.18.16'
+	annotationProcessor 'org.projectlombok:lombok:1.18.16'
+	testCompileOnly 'org.projectlombok:lombok:1.18.16'
+	testAnnotationProcessor 'org.projectlombok:lombok:1.18.16'
 }
 
 test {
