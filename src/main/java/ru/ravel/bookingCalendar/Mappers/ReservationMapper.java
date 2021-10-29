@@ -12,7 +12,7 @@ public class ReservationMapper implements RowMapper<Reservation> {
                 .id(rs.getLong("id"))
                 .user(rs.getLong("user_id"))
                 .cabinetId(rs.getLong("cabinet_id"))
-                .startTime(rs.getDate("start_time"))
+                .startTime(rs.getTimestamp("start_time"))
                 .duration(rs.getLong("duration"))
                 .title(rs.getString("title"))
                 .color(rs.getString("color"))

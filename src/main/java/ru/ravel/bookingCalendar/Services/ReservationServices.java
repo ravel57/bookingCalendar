@@ -24,9 +24,8 @@ public class ReservationServices {
 
     public List<ReserveDay> getActualReservations() throws ParseException {
         DateFormat dateFormatter = new SimpleDateFormat("dd-MM-yyyy");
-        Stream<Reservation> actualReservationsStream = reservationDAO.getActualReservations().stream();
-
-        Map<String, List<Reservation>> reservationsSplitByDaysMap = actualReservationsStream.collect(
+        List<Reservation> actualReservations = reservationDAO.getActualReservations();
+        Map<String, List<Reservation>> reservationsSplitByDaysMap = actualReservations.stream().collect(
                 Collectors.groupingBy(w -> new StringBuilder()
                         .append(w.getStartTime().getDate())
                         .append("-")
@@ -35,30 +34,29 @@ public class ReservationServices {
                         .append(w.getStartTime().getYear() + 1900)
                         .toString())
         );
-
         List<ReserveDay> reservationsSplitByDays = new ArrayList<>();
-        Object[] DatesOfSplitedReservations = reservationsSplitByDaysMap.keySet().toArray();
-        Collection<List<Reservation>> reservationsSplitByDaysVal = reservationsSplitByDaysMap.values();
+        Object[] datesOfSplitedReservations = reservationsSplitByDaysMap.keySet().toArray();
+        Object[] valuesOfSplitedReservations = reservationsSplitByDaysMap.values().toArray();
 
         for (int i = 0; i < reservationsSplitByDaysMap.size(); i++) {
-            List<Reservation> day = (List<Reservation>) reservationsSplitByDaysVal.toArray()[i];
-            Map<Long, List<Reservation>> cabinetiVnutriLdey = day.stream().collect(
+            List<Reservation> day = (List<Reservation>) valuesOfSplitedReservations[i];
+            Map<Long, List<Reservation>> reservationsSplitByCabinets = day.stream().collect(
                     Collectors.groupingBy(w -> w.getCabinetId())
             );
-            List<ReserveCabinet> spisokCabinetov = new ArrayList<>();
-            Object[] nomeraCabinetov = cabinetiVnutriLdey.keySet().toArray();
-            Object[] zapisiVnutriCabineta = cabinetiVnutriLdey.values().toArray();
-            for (int j = 0; j < cabinetiVnutriLdey.size(); j++) {
-                spisokCabinetov.add(
+            List<ReserveCabinet> reserveCabinetsInThisDay = new ArrayList<>();
+            Object[] cabinetNumbers = reservationsSplitByCabinets.keySet().toArray();
+            Object[] reservationsInCabinets = reservationsSplitByCabinets.values().toArray();
+            for (int j = 0; j < reservationsSplitByCabinets.size(); j++) {
+                reserveCabinetsInThisDay.add(
                         ReserveCabinet.builder()
-                                .cabinetId((long) nomeraCabinetov[j])
-                                .reserved((List<Reservation>) zapisiVnutriCabineta[j])
+                                .cabinetId((long) cabinetNumbers[j])
+                                .reserved((List<Reservation>) reservationsInCabinets[j])
                                 .build()
                 );
             }
             reservationsSplitByDays.add(ReserveDay.builder()
-                    .date(dateFormatter.parse((String) DatesOfSplitedReservations[i]))
-                    .cabinets(spisokCabinetov)
+                    .date(dateFormatter.parse((String) datesOfSplitedReservations[i]))
+                    .cabinets(reserveCabinetsInThisDay)
                     .build());
         }
         reservationsSplitByDays.sort((a, b) -> a.getDate().compareTo(b.getDate()));
