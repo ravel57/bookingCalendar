@@ -9,11 +9,9 @@ import java.util.Date;
 @Getter
 @Setter
 @Builder
-//@AllArgsConstructor
-//@NoArgsConstructor
 public class Reservation {
     private long id;
-    private long userId;
+    private long user;
     private long cabinetId;
     private Date startTime;
     private long duration;

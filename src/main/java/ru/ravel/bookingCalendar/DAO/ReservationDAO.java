@@ -17,7 +17,7 @@ public class ReservationDAO {
     public List<Reservation> getActualReservations() {
         return jdbcTemplate.query(
                 "select * from reservations\n" +
-                        "where start_time > DATE(DATE_ADD(now(), INTERVAL -1 DAY));",
+                    "where start_time > DATE(DATE_ADD(now(), INTERVAL -1 DAY));",
                 new ReservationMapper()
         );
     }
@@ -26,7 +26,7 @@ public class ReservationDAO {
         jdbcTemplate.update(
                 "INSERT INTO booking_calendar.reservations (user_id, cabinet_id, start_time, duration, title, color)\n" +
                         "VALUES (?, ?, ?, ?, ?, ?);",
-                reservation.getUserId(), reservation.getCabinetId(), reservation.getStartTime(),
+                reservation.getUser(), reservation.getCabinetId(), reservation.getStartTime(),
                 reservation.getDuration(), reservation.getTitle(), reservation.getColor()
         );
     }

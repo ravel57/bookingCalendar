@@ -10,9 +10,9 @@ public class ReservationMapper implements RowMapper<Reservation> {
     public Reservation mapRow(ResultSet rs, int rowNum) throws SQLException {
         return Reservation.builder()
                 .id(rs.getLong("id"))
-                .userId(rs.getLong("user_id"))
+                .user(rs.getLong("user_id"))
                 .cabinetId(rs.getLong("cabinet_id"))
-                .startTime(rs.getTimestamp("start_time"))
+                .startTime(rs.getDate("start_time"))
                 .duration(rs.getLong("duration"))
                 .title(rs.getString("title"))
                 .color(rs.getString("color"))
