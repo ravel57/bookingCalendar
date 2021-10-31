@@ -75,15 +75,15 @@ public class ReservationServices {
 
     private Date parseDateTime(String dateString) {
         try {
-            Date today = new Date();
+            Date today = new Date(new Date().getTime() / 100000 * 100000);
             today.setMinutes(0);
             today.setHours(0);
             today.setSeconds(0);
             if (dateString.indexOf(':') - dateString.indexOf(' ') == 2) {
-                dateString = new StringBuilder (dateString).insert(dateString.indexOf(':')-1, "0").toString();
+                dateString = new StringBuilder(dateString).insert(dateString.indexOf(':') - 1, "0").toString();
             }
             if (dateString.indexOf('.') == 1) {
-                dateString = new StringBuilder (dateString).insert(dateString.indexOf('.')-1, "0").toString();
+                dateString = new StringBuilder(dateString).insert(dateString.indexOf('.') - 1, "0").toString();
             }
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.dd.MM HH:mm");
             LocalDateTime dateTime = LocalDateTime.parse(today.getYear() + 1900 + "." + dateString, formatter);
@@ -99,7 +99,7 @@ public class ReservationServices {
             date.setMinutes(dateTime.getMinute());
             return date;
         } catch (Exception e) {
-            throw  e;
+            throw e;
         }
     }
 
