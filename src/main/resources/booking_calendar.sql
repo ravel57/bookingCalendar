@@ -16,7 +16,7 @@ create table reservations
     title      varchar(50) null
 );
 
-create table user
+create table client
 (
     id          int auto_increment
         primary key,

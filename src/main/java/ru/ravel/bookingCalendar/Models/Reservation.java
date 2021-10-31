@@ -11,7 +11,7 @@ import java.util.Date;
 @Builder
 public class Reservation {
     private long id;
-    private long user;
+    private String clientName;
     private long cabinetId;
     private Date startTime;
     private long duration;

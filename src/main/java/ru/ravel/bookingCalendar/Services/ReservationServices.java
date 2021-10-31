@@ -1,73 +1,110 @@
 package ru.ravel.bookingCalendar.Services;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import ru.ravel.bookingCalendar.DAO.ReservationDAO;
+import ru.ravel.bookingCalendar.Models.Client;
+import ru.ravel.bookingCalendar.Models.Reservation;
 import ru.ravel.bookingCalendar.Models.ReserveCabinet;
 import ru.ravel.bookingCalendar.Models.ReserveDay;
-import ru.ravel.bookingCalendar.Models.Reservation;
 
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 public class ReservationServices {
 
     @Autowired
     private ReservationDAO reservationDAO;
+    @Autowired
+    CabinetService cabinetService;
 
     public List<ReserveDay> getActualReservations() throws ParseException {
-        DateFormat dateFormatter = new SimpleDateFormat("dd-MM-yyyy");
         List<Reservation> actualReservations = reservationDAO.getActualReservations();
-        Map<String, List<Reservation>> reservationsSplitByDaysMap = actualReservations.stream().collect(
-                Collectors.groupingBy(w -> new StringBuilder()
-                        .append(w.getStartTime().getDate())
-                        .append("-")
-                        .append(w.getStartTime().getMonth() + 1)
-                        .append("-")
-                        .append(w.getStartTime().getYear() + 1900)
-                        .toString())
-        );
         List<ReserveDay> reservationsSplitByDays = new ArrayList<>();
-        Object[] datesOfSplitedReservations = reservationsSplitByDaysMap.keySet().toArray();
-        Object[] valuesOfSplitedReservations = reservationsSplitByDaysMap.values().toArray();
-
-        for (int i = 0; i < reservationsSplitByDaysMap.size(); i++) {
-            List<Reservation> day = (List<Reservation>) valuesOfSplitedReservations[i];
-            Map<Long, List<Reservation>> reservationsSplitByCabinets = day.stream().collect(
-                    Collectors.groupingBy(w -> w.getCabinetId())
+        {
+            DateFormat dateFormatter = new SimpleDateFormat("dd-MM-yyyy");
+            Map<String, List<Reservation>> reservationsSplitByDaysMap = actualReservations.stream().collect(
+                    Collectors.groupingBy(w -> dateFormatter.format(w.getStartTime()))
             );
-            List<ReserveCabinet> reserveCabinetsInThisDay = new ArrayList<>();
-            Object[] cabinetNumbers = reservationsSplitByCabinets.keySet().toArray();
-            Object[] reservationsInCabinets = reservationsSplitByCabinets.values().toArray();
-            for (int j = 0; j < reservationsSplitByCabinets.size(); j++) {
-                reserveCabinetsInThisDay.add(
-                        ReserveCabinet.builder()
-                                .cabinetId((long) cabinetNumbers[j])
-                                .reserved((List<Reservation>) reservationsInCabinets[j])
-                                .build()
+            Object[] datesOfSplitedReservations = reservationsSplitByDaysMap.keySet().toArray();
+            Object[] valuesOfSplitedReservations = reservationsSplitByDaysMap.values().toArray();
+            for (int i = 0; i < reservationsSplitByDaysMap.size(); i++) {
+                List<Reservation> day = (List<Reservation>) valuesOfSplitedReservations[i];
+                Map<Long, List<Reservation>> reservationsSplitByCabinets = day.stream().collect(
+                        Collectors.groupingBy(w -> w.getCabinetId())
                 );
+                List<ReserveCabinet> reserveCabinetsInThisDay = new ArrayList<>();
+                Object[] cabinetNumbers = reservationsSplitByCabinets.keySet().toArray();
+                Object[] reservationsInCabinets = reservationsSplitByCabinets.values().toArray();
+                for (int j = 0; j < reservationsSplitByCabinets.size(); j++) {
+                    reserveCabinetsInThisDay.add(
+                            ReserveCabinet.builder()
+                                    .cabinetId((long) cabinetNumbers[j])
+                                    .reserved((List<Reservation>) reservationsInCabinets[j])
+                                    .build()
+                    );
+                }
+                reservationsSplitByDays.add(ReserveDay.builder()
+                        .date(dateFormatter.parse((String) datesOfSplitedReservations[i]))
+                        .cabinets(reserveCabinetsInThisDay)
+                        .build());
             }
-            reservationsSplitByDays.add(ReserveDay.builder()
-                    .date(dateFormatter.parse((String) datesOfSplitedReservations[i]))
-                    .cabinets(reserveCabinetsInThisDay)
-                    .build());
         }
         reservationsSplitByDays.sort((a, b) -> a.getDate().compareTo(b.getDate()));
         return reservationsSplitByDays;
     }
 
-    public void saveReservation() {
-//        reservationDAO.saveReservation(new Reservation());
+    public void saveReservation(String reservationString, Client client) {
+        String[] lines = reservationString.split("\n");
+        Reservation reservation = Reservation.builder()
+                .clientName(client.getName())
+                .startTime(parseDateTime(lines[0]))
+                .duration(Long.parseLong(lines[1]))
+                .cabinetId(cabinetService.getCabinetIdByNumber(Long.parseLong(lines[2])))
+                .title(lines[3])
+                .color(generateRandomColor())
+                .build();
+        reservationDAO.saveReservation(reservation, client.getId());
     }
 
-    public ResponseEntity<Object> generateRandomColor() {
+    private Date parseDateTime(String dateString) {
+        try {
+            Date today = new Date();
+            today.setMinutes(0);
+            today.setHours(0);
+            today.setSeconds(0);
+            if (dateString.indexOf(':') - dateString.indexOf(' ') == 2) {
+                dateString = new StringBuilder (dateString).insert(dateString.indexOf(':')-1, "0").toString();
+            }
+            if (dateString.indexOf('.') == 1) {
+                dateString = new StringBuilder (dateString).insert(dateString.indexOf('.')-1, "0").toString();
+            }
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.dd.MM HH:mm");
+            LocalDateTime dateTime = LocalDateTime.parse(today.getYear() + 1900 + "." + dateString, formatter);
+            Date date = java.sql.Timestamp.valueOf(dateTime);
+            Date tmp = date;
+            tmp.setMinutes(0);
+            tmp.setHours(0);
+            if (tmp.compareTo(today) < 0) {
+                date.setYear(today.getYear() + 1);
+            }
+            TimeZone.setDefault(TimeZone.getTimeZone("UTC+3"));
+            date.setHours(dateTime.getHour()+3);
+            date.setMinutes(dateTime.getMinute());
+            return date;
+        } catch (Exception e) {
+            throw  e;
+        }
+    }
+
+
+    private String generateRandomColor() {
         int red = 0, green = 0, blue = 0, sum = 0;
         int drg, dgb, drb, colorDelta = 0;
         Random random = new Random();
@@ -81,7 +118,7 @@ public class ReservationServices {
             drb = Math.abs(red - blue);
             colorDelta = drg + dgb + drb;
         }
-        return ResponseEntity.status(HttpStatus.OK).body("rgb(" + red + " " + green + " " + blue + " / 72%)");
+        return new StringBuilder().append(red).append(" ").append(green).append(" ").append(blue).toString();
     }
 
 }
