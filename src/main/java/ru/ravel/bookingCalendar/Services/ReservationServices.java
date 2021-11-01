@@ -24,6 +24,7 @@ public class ReservationServices {
     @Autowired
     CabinetService cabinetService;
 
+
     public List<ReserveDay> getActualReservations() throws ParseException {
         List<Reservation> actualReservations = reservationDAO.getActualReservations();
         List<ReserveDay> reservationsSplitByDays = new ArrayList<>();
@@ -64,7 +65,7 @@ public class ReservationServices {
         String[] lines = reservationString.split("\n");
         Reservation reservation = Reservation.builder()
                 .clientName(client.getName())
-                .startTime(parseDateTime(lines[0]))
+                .startTime(parseDateTime(lines[0].replace(',','.')))
                 .duration(Long.parseLong(lines[1]))
                 .cabinetId(cabinetService.getCabinetIdByNumber(Long.parseLong(lines[2])))
                 .title(lines[3])
@@ -75,32 +76,29 @@ public class ReservationServices {
 
     private Date parseDateTime(String dateString) {
         try {
-            Date today = new Date(new Date().getTime() / 100000 * 100000);
-            today.setMinutes(0);
-            today.setHours(0);
-            today.setSeconds(0);
-            if (dateString.indexOf(':') - dateString.indexOf(' ') == 2) {
-                dateString = new StringBuilder(dateString).insert(dateString.indexOf(':') - 1, "0").toString();
-            }
-            if (dateString.indexOf('.') == 1) {
-                dateString = new StringBuilder(dateString).insert(dateString.indexOf('.') - 1, "0").toString();
-            }
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.dd.MM HH:mm");
-            LocalDateTime dateTime = LocalDateTime.parse(today.getYear() + 1900 + "." + dateString, formatter);
-            Date date = java.sql.Timestamp.valueOf(dateTime);
-            Date tmp = date;
-            tmp.setMinutes(0);
-            tmp.setHours(0);
-            if (tmp.compareTo(today) < 0) {
-                date.setYear(today.getYear() + 1);
-            }
             TimeZone.setDefault(TimeZone.getTimeZone("UTC+3"));
-            date.setHours(dateTime.getHour()+3);
-            date.setMinutes(dateTime.getMinute());
+            DateFormat dateFormatter = new SimpleDateFormat("dd.MM HH:mm");
+            Date date = dateFormatter.parse(dateString);
+            {
+                Date today = new Date(new Date().getTime() / 100000 * 100000);
+                today.setMinutes(0);
+                today.setHours(0);
+                today.setSeconds(0);
+                date.setYear(today.getYear());
+                Date tmp = new Date(date.getTime());
+                tmp.setMinutes(0);
+                tmp.setHours(0);
+                tmp.setSeconds(0);
+                if (tmp.compareTo(today) < 0) {
+                    date.setYear(date.getYear() + 1);
+                }
+            }
             return date;
-        } catch (Exception e) {
-            throw e;
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return null;
         }
+
     }
 
 
